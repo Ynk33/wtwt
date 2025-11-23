@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { useSearchStore } from '@stores/SearchStore';
 
 import type { IGenre } from '@types';
 import AutocompleteTagInput from '@components/ui/autocompleteTagInput/AutocompleteTagInput';
@@ -6,26 +7,27 @@ import useGenres from '@hooks/useGenres';
 import { cn } from '@utils/cn';
 
 const GenreSelector = ({
-  selectedGenres,
-  onGenresChange,
-  variant = 'primary',
+  type = 'included',
   className,
 }: {
-  selectedGenres: IGenre[];
-  onGenresChange: (genres: IGenre[]) => void;
-  variant?: 'primary' | 'secondary' | 'danger';
+  type?: 'included' | 'excluded';
   className?: string;
 }): React.ReactNode => {
-  const { genres, isLoading, error } = useGenres();
+  const { genres: existingGenres, isLoading, error } = useGenres();
+  const { genres, setGenres, excludedGenres, setExcludedGenres } =
+    useSearchStore();
+
+  const selectedGenres = type === 'included' ? genres : excludedGenres;
+  const setSelectedGenres = type === 'included' ? setGenres : setExcludedGenres;
 
   // Filter available genres (exclude already selected ones)
   const availableGenres = useMemo(
     () =>
-      genres.filter(
+      existingGenres.filter(
         (genre) =>
           !selectedGenres.some((selected) => selected._id === genre._id)
       ),
-    [genres, selectedGenres]
+    [existingGenres, selectedGenres]
   );
 
   // Transform available genres to AutocompleteDropdown item format
@@ -52,11 +54,11 @@ const GenreSelector = ({
   const handleTagsChanged = (labels: string[]) => {
     // Find genres that match the labels
     const newSelectedGenres = labels
-      .map((label) => genres.find((genre) => genre.name === label))
+      .map((label) => existingGenres.find((genre) => genre.name === label))
       .filter((genre): genre is IGenre => genre !== undefined);
 
     // Update parent with new genres
-    onGenresChange(newSelectedGenres);
+    setSelectedGenres(newSelectedGenres);
   };
 
   if (error) {
@@ -71,7 +73,7 @@ const GenreSelector = ({
         items={availableGenresItems}
         placeholder="Type a genre..."
         disabled={isLoading}
-        tagVariant={variant}
+        tagVariant={type === 'included' ? 'primary' : 'danger'}
       />
 
       {isLoading && (

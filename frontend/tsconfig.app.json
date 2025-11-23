@@ -26,7 +26,8 @@
       "@types/*": ["./src/types/*"],
       "@types": ["./src/types/index"],
       "@utils/*": ["./src/utils/*"],
-      "@routes/*": ["./src/routes/*"]
+      "@routes/*": ["./src/routes/*"],
+      "@stores/*": ["./src/stores/*"]
     },
 
     /* Linting */

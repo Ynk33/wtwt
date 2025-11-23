@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { useSearchStore } from '@stores/SearchStore';
 
 import type { ICountry } from '@types';
 import AutocompleteTagInput from '@components/ui/autocompleteTagInput/AutocompleteTagInput';
@@ -6,26 +7,22 @@ import useCountries from '@hooks/useCountries';
 import { cn } from '@utils/cn';
 
 const CountrySelector = ({
-  selectedCountries,
-  onCountriesChange,
   variant = 'primary',
   className,
 }: {
-  selectedCountries: ICountry[];
-  onCountriesChange: (countries: ICountry[]) => void;
   variant?: 'primary' | 'secondary' | 'danger';
   className?: string;
 }): React.ReactNode => {
-  const { countries, isLoading, error } = useCountries();
+  const { countries: existingCountries, isLoading, error } = useCountries();
+  const { countries, setCountries } = useSearchStore();
 
   // Filter available countries (exclude already selected ones)
   const availableCountries = useMemo(
     () =>
-      countries.filter(
-        (country) =>
-          !selectedCountries.some((selected) => selected._id === country._id)
+      existingCountries.filter(
+        (country) => !countries.some((selected) => selected._id === country._id)
       ),
-    [countries, selectedCountries]
+    [existingCountries, countries]
   );
 
   // Transform available countries to AutocompleteDropdown item format
@@ -41,22 +38,24 @@ const CountrySelector = ({
   // Convert selected countries to TagItem format for initialTags
   const initialTagItems = useMemo(
     () =>
-      selectedCountries.map((country) => ({
+      countries.map((country) => ({
         id: country._id,
         label: country.name,
       })),
-    [selectedCountries]
+    [countries]
   );
 
   // Handle tags changed - convert labels back to ICountry[]
   const handleTagsChanged = (labels: string[]) => {
     // Find countries that match the labels
     const newSelectedCountries = labels
-      .map((label) => countries.find((country) => country.name === label))
+      .map((label) =>
+        existingCountries.find((country) => country.name === label)
+      )
       .filter((country): country is ICountry => country !== undefined);
 
     // Update parent with new countries
-    onCountriesChange(newSelectedCountries);
+    setCountries(newSelectedCountries);
   };
 
   if (error) {

@@ -8,7 +8,7 @@ type ResponsiveRatio = {
   '2xl'?: number;
 };
 
-// Mapping des ratios vers les classes Tailwind pour garantir la génération
+// Mapping ratios to Tailwind classes to ensure generation
 const ratioClassMap: Record<number, string> = {
   1: 'flex-[1]',
   2: 'flex-[2]',

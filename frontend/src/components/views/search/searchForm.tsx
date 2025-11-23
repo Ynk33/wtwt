@@ -1,42 +1,38 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useSearchStore } from '@stores/SearchStore';
 
-import type { ICountry, IGenre, MovieFilters } from '@types';
+import type { MovieFilters } from '@types';
 import Button from '@components/ui/Button';
 import CountrySelector from '@components/views/search/countrySelector';
-import GenreSelector from './genreSelector';
+import GenreSelector from '@components/views/search/genreSelector';
+import RatingSelector from '@components/views/search/ratingSelector';
+import YearSelector from '@components/views/search/yearSelector';
 
 const SearchForm = ({
   onSubmit,
 }: {
   onSubmit: (filters?: MovieFilters) => void;
 }): React.ReactNode => {
-  const [genres, setGenres] = useState<IGenre[]>([]);
-  const [excludedGenres, setExcludedGenres] = useState<IGenre[]>([]);
-  const [countries, setCountries] = useState<ICountry[]>([]);
+  const { getMovieFilters } = useSearchStore();
 
-  const validate = () => {};
+  const validate = () => {
+    // TODO: to implement validation for the filters
+  };
 
   const handleSubmit = () => {
     validate();
-    onSubmit({ genres: genres.map((genre) => genre.name) });
+    const filters = getMovieFilters();
+    onSubmit(filters);
   };
 
   return (
     <div>
       <h1>Search</h1>
-      <GenreSelector selectedGenres={genres} onGenresChange={setGenres} />
-      <GenreSelector
-        selectedGenres={excludedGenres}
-        onGenresChange={setExcludedGenres}
-        variant="danger"
-      />
-      <CountrySelector
-        selectedCountries={countries}
-        onCountriesChange={setCountries}
-      />
-      {/* TODO: add year selector */}
-      {/* TODO: add rating selector */}
-      {/* TODO: add sort selector */}
+      <GenreSelector type="included" />
+      <GenreSelector type="excluded" />
+      <CountrySelector />
+      <YearSelector />
+      <RatingSelector />
       {/* TODO: display errors */}
       <Button onClick={handleSubmit}>Search</Button>
     </div>
