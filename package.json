@@ -1,0 +1,29 @@
+{
+  "name": "WTWT - Movie Recommendation System",
+  "version": "0.1.0",
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "description": "Movie Recommendation System",
+  "keywords": [
+    "movie",
+    "recommendation",
+    "system"
+  ],
+  "author": "Yannick Tirand",
+  "license": "ISC",
+  "scripts": {
+    "dev": "concurrently -n mongo,backend,frontend -c blue,green,yellow \"npm run docker:up\" \"npm run dev --workspace=backend\" \"npm run dev --workspace=frontend\"",
+    "docker:up": "docker-compose -f backend/docker/mongo.yml up",
+    "docker:down": "docker-compose -f backend/docker/mongo.yml down",
+    "docker:logs": "docker-compose -f backend/docker/mongo.yml logs -f",
+    "dev:backend": "npm run dev --workspace=backend",
+    "dev:frontend": "npm run dev --workspace=frontend",
+    "create-user": "npm run create-user --workspace=backend",
+    "generate-recommendations": "npm run generate-recommendations --workspace=backend"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
